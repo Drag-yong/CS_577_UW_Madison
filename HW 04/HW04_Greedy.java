@@ -24,9 +24,8 @@ public class HW04_Greedy {
 
 			int pageFault = 0;
 			for (int j = 0; j < request; j++) {
-				int index = maxIndex(cache, pages, j, cacheLength, request);
-
 				if (!isExistInTheCache(cache, pages, j, cacheLength)) {
+					int index = maxIndex(cache, pages, j, cacheLength, request);
 					cache[index] = pages[j];
 					pageFault++;
 				}
@@ -61,7 +60,8 @@ public class HW04_Greedy {
 		int[] cacheIndex = new int[cacheLength];
 
 		for (int i = 0; i < cacheLength; i++) {
-			cacheIndex[i] = Integer.MAX_VALUE; // This shows if there is no future call, it returns the maximum value
+			cacheIndex[i] = Integer.MAX_VALUE; // This shows if there is no future call, it returns the maximum
+												// value
 			for (int j = pageIndex; j < pagesLength; j++)
 				if (cache[i] == pages[j]) {
 					cacheIndex[i] = j;
