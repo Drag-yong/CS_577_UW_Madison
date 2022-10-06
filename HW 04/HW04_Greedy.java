@@ -60,13 +60,15 @@ public class HW04_Greedy {
 		int[] cacheIndex = new int[cacheLength];
 
 		for (int i = 0; i < cacheLength; i++) {
-			cacheIndex[i] = Integer.MAX_VALUE; // This shows if there is no future call, it returns the maximum
-												// value
-			for (int j = pageIndex; j < pagesLength; j++)
-				if (cache[i] == pages[j]) {
-					cacheIndex[i] = j;
-					break;
-				}
+			if (cacheIndex[i] < pageIndex) {
+				cacheIndex[i] = Integer.MAX_VALUE; // This shows if there is no future call, it returns the maximum
+													// value
+				for (int j = pageIndex; j < pagesLength; j++)
+					if (cache[i] == pages[j]) {
+						cacheIndex[i] = j;
+						break;
+					}
+			}
 		}
 
 		int output = 0;
