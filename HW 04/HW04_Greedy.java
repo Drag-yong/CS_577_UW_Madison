@@ -1,17 +1,24 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.StringTokenizer;
 
 public class HW04_Greedy {
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		int T = sc.nextInt();
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		int T = Integer.parseInt(br.readLine());
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
 		for (int i = 0; i < T; i++) {
-			int[] cache = new int[sc.nextInt()];
-			int request = sc.nextInt();
+			int[] cache = new int[Integer.parseInt(br.readLine())];
+			int request = Integer.parseInt(br.readLine());
 			int[] pages = new int[request];
 
+			StringTokenizer st = new StringTokenizer(br.readLine());
 			for (int j = 0; j < request; j++) {
-				pages[j] = sc.nextInt();
+				pages[j] = Integer.parseInt(st.nextToken());
 			}
 
 			int pageFault = 0;
@@ -24,10 +31,13 @@ public class HW04_Greedy {
 				}
 			}
 
-			System.out.println(pageFault);
+			bw.append(pageFault + "\n");
 		}
 
-		sc.close();
+		bw.flush();
+		
+		br.close();
+		bw.close();
 	}
 
 	private static boolean isExistInTheCache(int[] cache, int[] pages, int pageIndex) {
