@@ -12,7 +12,8 @@ public class HW04_Greedy {
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
 		for (int i = 0; i < T; i++) {
-			int[] cache = new int[Integer.parseInt(br.readLine())];
+			int cacheLength = Integer.parseInt(br.readLine());
+			int[] cache = new int[cacheLength];
 			int request = Integer.parseInt(br.readLine());
 			int[] pages = new int[request];
 
@@ -23,9 +24,9 @@ public class HW04_Greedy {
 
 			int pageFault = 0;
 			for (int j = 0; j < request; j++) {
-				int index = maxIndex(cache, pages, j);
+				int index = maxIndex(cache, pages, j, cacheLength, request);
 
-				if (!isExistInTheCache(cache, pages, j)) {
+				if (!isExistInTheCache(cache, pages, j, cacheLength)) {
 					cache[index] = pages[j];
 					pageFault++;
 				}
@@ -35,13 +36,13 @@ public class HW04_Greedy {
 		}
 
 		bw.flush();
-		
+
 		br.close();
 		bw.close();
 	}
 
-	private static boolean isExistInTheCache(int[] cache, int[] pages, int pageIndex) {
-		for (int i = 0; i < cache.length; i++)
+	private static boolean isExistInTheCache(int[] cache, int[] pages, int pageIndex, int cacheLength) {
+		for (int i = 0; i < cacheLength; i++)
 			if (cache[i] == pages[pageIndex])
 				return true;
 		return false;
@@ -55,42 +56,29 @@ public class HW04_Greedy {
 	 * @param pageIndex showing the current index of the page
 	 * @return
 	 */
-	private static int maxIndex(int[] cache, int[] pages, int pageIndex) {
-		int[] cacheIndex = distance(cache, pages, pageIndex);
+	private static int maxIndex(int[] cache, int[] pages, int pageIndex, int cacheLength, int pagesLength) {
+		// It tells the length from the future paging
+		int[] cacheIndex = new int[cacheLength];
+
+		for (int i = 0; i < cacheLength; i++) {
+			cacheIndex[i] = Integer.MAX_VALUE; // This shows if there is no future call, it returns the maximum value
+			for (int j = pageIndex; j < pagesLength; j++)
+				if (cache[i] == pages[j]) {
+					cacheIndex[i] = j;
+					break;
+				}
+		}
 
 		int output = 0;
 		int max = cacheIndex[0];
 
-		for (int i = 1; i < cache.length; i++) {
+		for (int i = 1; i < cacheLength; i++) {
 			if (cacheIndex[i] > max) {
 				max = cacheIndex[i];
 				output = i;
 			}
 		}
 
-		return output;
-	}
-
-	/**
-	 * It tells the length from the future paging
-	 * 
-	 * @param cache
-	 * @param pages     future requests
-	 * @param pageIndex showing the current index of the page
-	 * @return int array which stores the index of page which is the same value with
-	 *         the cache
-	 */
-	private static int[] distance(int[] cache, int[] pages, int pageIndex) {
-		int[] output = new int[cache.length];
-
-		for (int i = 0; i < cache.length; i++) {
-			output[i] = Integer.MAX_VALUE; // This shows if there is no future call, it returns the maximum value
-			for (int j = pageIndex; j < pages.length; j++)
-				if (cache[i] == pages[j]) {
-					output[i] = j;
-					break;
-				}
-		}
 		return output;
 	}
 }
