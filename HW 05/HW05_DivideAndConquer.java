@@ -46,12 +46,13 @@ public class HW05_DivideAndConquer {
 		l = r = output = 0;
 		int k = left;
 		while (l < n1 && r < n2)
-			if (L[l] < R[r])
+			if (L[l] <= R[r])
 				arr[k++] = L[l++];
-			else if (L[l] == R[r]) {
-				arr[k++] = L[l++];
-				arr[k++] = R[r++];
-			} else {
+//			else if (L[l] == R[r]) {
+//				arr[k++] = L[l++];
+//				arr[k++] = R[r++];
+//			}
+			else {
 				output += n1 - l;
 				arr[k++] = R[r++];
 			}
