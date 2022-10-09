@@ -1,21 +1,31 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.StringTokenizer;
 
 public class HW05_DivideAndConquer {
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-		int T = sc.nextInt();
+		int T = Integer.parseInt(br.readLine());
 		for (int test_case = 0; test_case < T; test_case++) {
-			int length = sc.nextInt();
+			int length = Integer.parseInt(br.readLine());
+			StringTokenizer st = new StringTokenizer(br.readLine());
 			int[] ranking = new int[length];
 			for (int i = 0; i < length; i++) {
-				ranking[i] = sc.nextInt();
+				ranking[i] = Integer.parseInt(st.nextToken());
 			}
 
-			System.out.println(divide(ranking, 0, length - 1));
+			bw.append(divide(ranking, 0, length - 1) + "\n");
 		}
 
-		sc.close();
+		bw.flush();
+
+		br.close();
+		bw.close();
 	}
 
 	private static int divide(int[] arr, int left, int right) {
