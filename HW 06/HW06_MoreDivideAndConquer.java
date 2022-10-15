@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class HW06_MoreDivideAndConquer {
@@ -9,32 +10,21 @@ public class HW06_MoreDivideAndConquer {
 		for (int i = 0; i < test_case; i++) {
 			int n = sc.nextInt();
 
-			// arr[0] = q list
-			// arr[1] = p list
-			// arr[0 or 1][value] = index;
-			// indices are from 1 to n, not 0 to n - 1
-			int[][] arr = new int[2][1000001];
-			for (int j = 1; j <= n; j++)
-				arr[0][sc.nextInt()] = j;
-			for (int j = 1; j <= n; j++)
-				arr[1][sc.nextInt()] = j;
+			int[][] arr = new int[2][n];
 
-			int[][] arrCompressed = new int[2][n];
-			int order = 0;
-			for (int j = 0; j < 1000000; j++)
-				if (arr[0][j] != 0)
-					arrCompressed[0][arr[0][j] - 1] = order++;
-
-			order = 0;
-			for (int j = 0; j < 1000000; j++)
-				if (arr[1][j] != 0)
-					arrCompressed[1][arr[1][j] - 1] = order++;
-
-			int[] point = new int[n];
 			for (int j = 0; j < n; j++)
-				point[arrCompressed[0][j]] = arrCompressed[1][j];
+				arr[0][j] = sc.nextInt();
+			for (int j = 0; j < n; j++)
+				arr[1][j] = sc.nextInt();
 
-			System.out.println(divideCount(point, 0, n - 1));
+			Point[] arrPoint = new Point[n];
+
+			for (int j = 0; j < n; j++)
+				arrPoint[j] = new Point(arr[0][j], arr[1][j]);
+
+			Arrays.sort(arrPoint, (p1, p2) -> p1.compareToX1(p2));
+
+			System.out.printf("%.0f\n", divideCount(arrPoint, 0, n - 1));
 		}
 
 		sc.close();
@@ -44,21 +34,22 @@ public class HW06_MoreDivideAndConquer {
 	// private method //
 	////////////////////
 
-	private static int divideCount(int[] arr, int lt, int rt) {
+	private static double divideCount(Point[] arr, int lt, int rt) {
 		if (lt >= rt)
 			return 0;
 		int m = (lt + rt) / 2;
-		int output = divideCount(arr, lt, m);
+		double output = divideCount(arr, lt, m);
 		output += divideCount(arr, m + 1, rt);
 		output += mergeCount(arr, lt, m, rt);
 		return output;
 	}
 
-	private static int mergeCount(int[] arr, int lt, int m, int rt) {
+	private static double mergeCount(Point[] arr, int lt, int m, int rt) {
+
 		int n1 = m - lt + 1;
 		int n2 = rt - m;
-		int[] L = new int[n1];
-		int[] R = new int[n2];
+		Point[] L = new Point[n1];
+		Point[] R = new Point[n2];
 
 		for (int i = 0; i < n1; i++)
 			L[i] = arr[lt + i];
@@ -68,9 +59,9 @@ public class HW06_MoreDivideAndConquer {
 		int l = 0;
 		int r = 0;
 		int k = lt;
-		int output = 0;
+		double output = 0;
 		while (l < n1 && r < n2)
-			if (L[l] <= R[r])
+			if (L[l].compareToX2(R[r]) <= 0)
 				arr[k++] = L[l++];
 			else {
 				output += n1 - l;
@@ -84,4 +75,26 @@ public class HW06_MoreDivideAndConquer {
 
 		return output;
 	}
+
+	///////////////////
+	// private class //
+	///////////////////
+
+	private static class Point {
+		int x1, x2;
+
+		public Point(int x1, int x2) {
+			this.x1 = x1;
+			this.x2 = x2;
+		}
+
+		public int compareToX1(Point p) {
+			return this.x1 - p.x1;
+		}
+
+		public int compareToX2(Point p) {
+			return this.x2 - p.x2;
+		}
+	}
+
 }
