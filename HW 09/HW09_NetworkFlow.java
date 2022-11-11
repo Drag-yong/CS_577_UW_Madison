@@ -4,103 +4,117 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.StringTokenizer;
 
 public class HW09_NetworkFlow {
-	private static int fordFulkerson(Edge[][] graph) {
-		int source = 1;
-		int target = graph.length - 1;
-		int flow = 0;
-		List<Edge> path = new ArrayList<>();
-		boolean[] visited = new boolean[target + 1];
-		visited[source] = true;
-
-		while (dfs(graph, source, target, path, visited)) {
-			int min = Integer.MAX_VALUE;
-			for (Edge e : path) {
-				if (e.capacity < min) {
-					min = e.capacity;
-				}
-			}
-			flow += min;
-
-			for (Edge e : path) {
-				graph[e.n1][e.n2].capacity -= min;
-				graph[e.n2][e.n1].capacity += min;
-			}
-
-			path.clear();
-			visited = new boolean[target + 1];
-			visited[source] = true;
-		}
-
-		return flow;
-	}
-
-	private static boolean dfs(Edge[][] graph, int curr, int target, List<Edge> path, boolean[] visited) {
-		if (curr == target) {
-			return true;
-		}
-
-		for (int i = 1; i <= target; i++) {
-			if (!visited[i] && graph[curr][i] != null && graph[curr][i].capacity > 0) {
-				visited[i] = true;
-				path.add(new Edge(curr, i, graph[curr][i].capacity));
-				boolean result = dfs(graph, i, target, path, visited);
-
-				if (result) {
-					return true;
-				}
-
-				path.remove(path.size() - 1);
-			}
-		}
-		return false;
-	}
+	static int N; // # nodes
+	static int E; // # edges
+	static int[][] graph; // It stores the capacity [from][to]
+	static boolean[] visited; // Check if it is visited while using DFS
 
 	public static void main(String[] args) throws NumberFormatException, IOException {
+		// Standard input and output
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
 
 		int test_case = Integer.parseInt(br.readLine());
 		for (int t = 0; t < test_case; t++) {
-			StringTokenizer st = new StringTokenizer(br.readLine());
-			int n = Integer.parseInt(st.nextToken());
-			int k = Integer.parseInt(st.nextToken());
+			st = new StringTokenizer(br.readLine());
 
-			Edge[][] graph = new Edge[n + 1][n + 1];
-			for (int j = 0; j < k; j++) {
+			N = Integer.parseInt(st.nextToken()); // # nodes
+			E = Integer.parseInt(st.nextToken()); // # edges
+			graph = new int[N + 1][N + 1]; // It stores the capacity [from][to]
+
+			// Making graph
+			for (int i = 0; i < E; i++) {
 				st = new StringTokenizer(br.readLine());
-				int n1 = Integer.parseInt(st.nextToken());
-				int n2 = Integer.parseInt(st.nextToken());
-				int capacity = Integer.parseInt(st.nextToken());
-				if (graph[n1][n2] == null) {
-					graph[n1][n2] = new Edge(n1, n2, capacity);
-					graph[n2][n1] = new Edge(n1, n2, capacity);
-				} else {
-					graph[n1][n2].capacity += capacity;
-					graph[n2][n1].capacity += capacity;
-				}
+				graph[Integer.parseInt(st.nextToken())][Integer.parseInt(st.nextToken())] += Integer
+						.parseInt(st.nextToken());
 			}
 
-			bw.append(fordFulkerson(graph) + "\n");
+			bw.append(fordFulkerson() + "\n");
 		}
 
 		bw.flush();
+
 		br.close();
 		bw.close();
 	}
 
-	private static class Edge {
-		private final int n1; // start
-		private final int n2; // end
-		private int capacity;
+	/**
+	 * Ford-Fulkerson algorithm which uses residual graph
+	 * 
+	 * @return max flow
+	 */
+	private static int fordFulkerson() {
+		int output = 0; // This will store the max flow
+		visited = new boolean[N + 1];
+		visited[1] = true;
 
-		public Edge(int n1, int n2, int capacity) {
-			this.n1 = n1;
-			this.n2 = n2;
-			this.capacity = capacity;
+		// This will store the path that you passed if you get a true from finding the
+		// path.
+		ArrayList<Edge> path = new ArrayList<Edge>(N - 1);
+
+		// Ford-Fulkerson algorithm
+		while (stPath(1, path)) {
+			int min = Integer.MAX_VALUE;
+
+			for (Edge e : path)
+				min = graph[e.u][e.v] < min ? graph[e.u][e.v] : min;
+
+			output += min;
+
+			for (Edge e : path) {
+				graph[e.u][e.v] -= min;
+				graph[e.v][e.u] += min;
+			}
+
+			visited = new boolean[N + 1];
+			visited[1] = true;
+			path.clear();
+		}
+
+		return output;
+	}
+
+	/**
+	 * Find if there is a path or not by using DFS.
+	 * 
+	 * @param cur  from
+	 * @param path store the edge from the source to sink
+	 * @return true if there is a path from 1 (source) to n (sink)
+	 */
+	private static boolean stPath(int cur, ArrayList<Edge> path) {
+		if (cur == N) // Meet the sink
+			return true;
+
+		for (int i = 1; i <= N; i++) {
+			// Check if there is an edge from the cur to i
+			if (graph[cur][i] > 0 && !visited[i]) {
+				// add the path
+				visited[i] = true;
+				path.add(new Edge(cur, i));
+
+				if (stPath(i, path))
+					return true;
+
+				// remove the path
+				visited[i] = false;
+				path.remove(path.size() - 1);
+			}
+		}
+
+		return false;
+	}
+
+	private static class Edge {
+		public int u;
+		public int v;
+
+		public Edge(int u, int v) {
+			this.u = u;
+			this.v = v;
 		}
 	}
 }
