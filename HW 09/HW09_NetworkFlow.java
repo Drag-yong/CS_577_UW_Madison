@@ -26,14 +26,20 @@ public class HW09_NetworkFlow {
 			E = Integer.parseInt(st.nextToken()); // # edges
 			graph = new int[N + 1][N + 1]; // It stores the capacity [from][to]
 
+			// find the max capacity
+			int max = 0;
 			// Making graph
 			for (int i = 0; i < E; i++) {
 				st = new StringTokenizer(br.readLine());
-				graph[Integer.parseInt(st.nextToken())][Integer.parseInt(st.nextToken())] += Integer
-						.parseInt(st.nextToken());
+				int u = Integer.parseInt(st.nextToken());
+				int v = Integer.parseInt(st.nextToken());
+				int capacity = Integer.parseInt(st.nextToken());
+				graph[u][v] += capacity;
+
+				max = capacity > max ? capacity : max;
 			}
 
-			bw.append(fordFulkerson() + "\n");
+			bw.append(scaledFordFulkerson(max) + "\n");
 		}
 
 		bw.flush();
@@ -43,11 +49,12 @@ public class HW09_NetworkFlow {
 	}
 
 	/**
-	 * Ford-Fulkerson algorithm which uses residual graph
+	 * Scaled version of Ford-Fulkerson algorithm which uses residual graph
 	 * 
+	 * @param max the maximum edge
 	 * @return max flow
 	 */
-	private static int fordFulkerson() {
+	private static int scaledFordFulkerson(int max) {
 		int output = 0; // This will store the max flow
 		visited = new boolean[N + 1];
 		visited[1] = true;
@@ -56,25 +63,35 @@ public class HW09_NetworkFlow {
 		// path.
 		ArrayList<Edge> path = new ArrayList<Edge>(N - 1);
 
-		// Ford-Fulkerson algorithm
-		while (stPath(1, path)) {
-			int min = Integer.MAX_VALUE;
+		int delta = 1;
+		while (delta < max)
+			delta = delta << 1;
 
-			for (Edge e : path)
-				min = graph[e.u][e.v] < min ? graph[e.u][e.v] : min;
+		while (delta >= 1) {
+			// Ford-Fulkerson algorithm
+			while (stPath(1, path, delta)) {
+//				int min = Integer.MAX_VALUE;
+//
+//				for (Edge e : path)
+//					min = graph[e.u][e.v] < min ? graph[e.u][e.v] : min;
+//
+//				output += min;
+				output += delta;
 
-			output += min;
+				for (Edge e : path) {
+//					graph[e.u][e.v] -= min;
+//					graph[e.v][e.u] += min;
+					graph[e.u][e.v] -= delta;
+					graph[e.v][e.u] += delta;
+				}
 
-			for (Edge e : path) {
-				graph[e.u][e.v] -= min;
-				graph[e.v][e.u] += min;
+				visited = new boolean[N + 1];
+				visited[1] = true;
+				path.clear();
 			}
 
-			visited = new boolean[N + 1];
-			visited[1] = true;
-			path.clear();
+			delta = delta >> 1;
 		}
-
 		return output;
 	}
 
@@ -85,18 +102,18 @@ public class HW09_NetworkFlow {
 	 * @param path store the edge from the source to sink
 	 * @return true if there is a path from 1 (source) to n (sink)
 	 */
-	private static boolean stPath(int cur, ArrayList<Edge> path) {
+	private static boolean stPath(int cur, ArrayList<Edge> path, int delta) {
 		if (cur == N) // Meet the sink
 			return true;
 
 		for (int i = 1; i <= N; i++) {
 			// Check if there is an edge from the cur to i
-			if (graph[cur][i] > 0 && !visited[i]) {
+			if (graph[cur][i] >= delta && !visited[i]) {
 				// add the path
 				visited[i] = true;
 				path.add(new Edge(cur, i));
 
-				if (stPath(i, path))
+				if (stPath(i, path, delta))
 					return true;
 
 				// remove the path
