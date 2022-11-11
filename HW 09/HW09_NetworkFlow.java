@@ -63,24 +63,19 @@ public class HW09_NetworkFlow {
 		// path.
 		ArrayList<Edge> path = new ArrayList<Edge>(N - 1);
 
+		// get the maximum edge that max(2^i) < max(E)
 		int delta = 1;
-		while (delta < max)
+		while (delta < max) // Actually it should be while(delta < max >> 1) but I just omit it to improve
+							// the efficiency.
 			delta = delta << 1;
 
+		// Scaled version of Ford-Fulkerson
 		while (delta >= 1) {
 			// Ford-Fulkerson algorithm
 			while (stPath(1, path, delta)) {
-//				int min = Integer.MAX_VALUE;
-//
-//				for (Edge e : path)
-//					min = graph[e.u][e.v] < min ? graph[e.u][e.v] : min;
-//
-//				output += min;
 				output += delta;
 
 				for (Edge e : path) {
-//					graph[e.u][e.v] -= min;
-//					graph[e.v][e.u] += min;
 					graph[e.u][e.v] -= delta;
 					graph[e.v][e.u] += delta;
 				}
